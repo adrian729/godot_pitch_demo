@@ -1,38 +1,61 @@
 extends Node
 
-@export_range(0.0, 1.0) var note_detection_threshold: float = 0.25
-@export_range(0.01, 0.2) var note_stability_time: float = 0.03
+signal midi_note_changed(prev: int, val: int)
+
+@export_range(0.0, 1.0) var note_detection_threshold: float = 0.4
+@export_range(0.01, 0.2) var note_stability_time: float = 0.01
 
 const MIN_DB = 60
 const RECORD_BUS_NAME = "record"
 const NOTE_FADE_OUT_SPEED = 8.0
-
-@onready var curr_note_label: RichTextLabel = $"../UI/NoteLabel"
+const START_FADE_VALUE = 1.0
 
 @onready var record_bus_index: int = AudioServer.get_bus_index(RECORD_BUS_NAME)
 @onready var spectrum_effect: AudioEffectSpectrumAnalyzerInstance = AudioServer.get_bus_effect_instance(record_bus_index, 1)
 
-var _note_ranges_table: Array = []
+@onready var _note_ranges_table: Array = NoteRanges.get_note_ranges()
 
-# State tracking variables
-var _current_displayed_note: String = ""
-var _last_detected_note: String = ""
-var _stability_timer: float = 0.0
+var fade_value = START_FADE_VALUE
+var stability_timer: float = 0.0
 
-
-func _ready() -> void:
-	_note_ranges_table = NoteRanges.get_note_ranges()
-	curr_note_label.text = "---"
+var midi_note = -1 # val > 0 note detected, otherwise none
+var last_midi_note = -1 # val > 0 note detected, otherwise none
 
 
 func _process(delta: float) -> void:
-	_update_note_detection(delta)
+	update_note_detection(delta)
 
 
-func _update_note_detection(delta: float) -> void:
-	var max_energy := 0.0
-	var dominant_note_name := ""
-	
+func update_note_detection(delta: float) -> void:
+	var playing_note := get_playing_note()
+	# --- Case 1: Sound is being detected ---
+	if playing_note > 0:
+		stability_timer += delta
+		if playing_note != last_midi_note:
+			stability_timer = 0.0
+
+		if stability_timer > note_stability_time:
+			if midi_note != playing_note:
+				midi_note_changed.emit(midi_note, playing_note)
+				midi_note = playing_note
+	# --- Case 2: Silence is detected ---
+	else:
+		stability_timer = 0.0
+		# Only fade out during silence
+		if midi_note > 0:
+			fade_value = lerpf(fade_value, 0.0, delta * NOTE_FADE_OUT_SPEED)
+			if fade_value < 0.01:
+				fade_value = START_FADE_VALUE
+				midi_note_changed.emit(midi_note, -1)
+				midi_note = -1
+
+	last_midi_note = playing_note
+
+
+func get_playing_note() -> int:
+	var max_energy := note_detection_threshold
+	var detected_midi_note := -1
+
 	for note_data in _note_ranges_table:
 		if note_data != null:
 			var low_bound = note_data[NoteRanges.NoteData.LOW_BOUND]
@@ -43,35 +66,6 @@ func _update_note_detection(delta: float) -> void:
 
 			if energy > max_energy:
 				max_energy = energy
-				dominant_note_name = note_data[NoteRanges.NoteData.NAME]
+				detected_midi_note = note_data[NoteRanges.NoteData.MIDI]
 
-	var detected_note = dominant_note_name if max_energy > note_detection_threshold else ""
-
-	# --- Case 1: Sound is being detected ---
-	if detected_note != "":
-		# Update stability timer for the currently heard note
-		if detected_note == _last_detected_note:
-			_stability_timer += delta
-		else:
-			_stability_timer = 0.0 # A new note is heard, reset its stability timer
-		
-		# If the newly heard note is stable, update the display
-		if _stability_timer > note_stability_time:
-			if _current_displayed_note != detected_note:
-				_current_displayed_note = detected_note
-				curr_note_label.text = _current_displayed_note
-
-		# As long as sound is being made, keep the label fully visible
-		curr_note_label.modulate.a = 1.0
-
-	# --- Case 2: Silence is detected ---
-	else:
-		_stability_timer = 0.0
-		# Only fade out during silence
-		if _current_displayed_note != "":
-			curr_note_label.modulate.a = lerpf(curr_note_label.modulate.a, 0.0, delta * NOTE_FADE_OUT_SPEED)
-			if curr_note_label.modulate.a < 0.01:
-				_current_displayed_note = ""
-				curr_note_label.text = "---"
-	
-	_last_detected_note = detected_note
+	return detected_midi_note

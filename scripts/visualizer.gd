@@ -1,3 +1,4 @@
+class_name Visualizer
 extends Node2D
 
 @export var show_peak_hold_line: bool = true

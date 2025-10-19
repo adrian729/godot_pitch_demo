@@ -31,11 +31,11 @@ var note_table: Array
 
 
 func _ready():
-	_populate_table()
+	populate_table()
 
 
 # === Private Methods ===
-func _populate_table():
+func populate_table():
 	note_table.resize(MAX_MIDI_NOTE + 1)
 
 	var current_lower_bound: float
@@ -53,11 +53,11 @@ func _populate_table():
 		var upper_bound := get_mid_freq(freq, freq_next)
 		
 		note_table[midi_note] = [midi_note, note_name, freq, current_lower_bound, upper_bound]
-		
+
 		current_lower_bound = upper_bound
 
 
-static func _validate_midi_note_in_range(midi_note: int, extended_range: bool = false) -> bool:
+static func validate_midi_note_in_range(midi_note: int, extended_range: bool = false) -> bool:
 	var min_range = MIN_MIDI_NOTE - 1 if extended_range else MIN_MIDI_NOTE
 	var max_range = MAX_MIDI_NOTE + 1 if extended_range else MAX_MIDI_NOTE
 	
@@ -91,14 +91,14 @@ func get_midi_from_freq(freq: float) -> int:
 
 
 static func get_freq(midi_note: int) -> float:
-	if not _validate_midi_note_in_range(midi_note, true):
+	if not validate_midi_note_in_range(midi_note, true):
 		return 0.0
 	
 	return BASE_A4_FREQUENCY * pow(2.0, (midi_note - MIDI_A4) / float(SEMITONES_PER_OCTAVE))
 
 
 func get_note_name(midi_note: int) -> String:
-	if not _validate_midi_note_in_range(midi_note):
+	if not validate_midi_note_in_range(midi_note):
 		return ""
 
 	var octave := int(floor((midi_note - SEMITONES_PER_OCTAVE) / float(SEMITONES_PER_OCTAVE)))
