@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3 uid="uid://dj5csxlxbgv0c"]
+
+[ext_resource type="Script" uid="uid://b5wd1oa1jm4cm" path="res://scripts/visualizer.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://c52kxsried6ni" path="res://scripts/pitch_detection.gd" id="2_0xm2m"]
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_ig7tw"]
+
+[node name="main" type="Node2D"]
+
+[node name="Visualizer" type="Node2D" parent="."]
+script = ExtResource("1_ig7tw")
+
+[node name="Player" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamMicrophone_ig7tw")
+autoplay = true
+bus = &"record"
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="NoteLabel" type="RichTextLabel" parent="UI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -496.0
+offset_top = -244.0
+offset_right = -416.0
+offset_bottom = -204.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "G"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PitchDetection" type="Node" parent="."]
+script = ExtResource("2_0xm2m")
+note_detection_threshold = 0.4
