@@ -12,7 +12,7 @@ config_version=5
 
 config/name="audio-mic-demo"
 run/main_scene="uid://dj5csxlxbgv0c"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.4", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [audio]
@@ -22,6 +22,10 @@ driver/enable_input=true
 [autoload]
 
 NoteRanges="*res://scripts/note_ranges.gd"
+
+[dotnet]
+
+project/assembly_name="audio-mic-demo"
 
 [rendering]
 
