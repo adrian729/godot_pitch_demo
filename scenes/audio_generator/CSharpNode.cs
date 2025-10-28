@@ -126,29 +126,22 @@ public partial class CSharpNode : Node
 			float toneSample = (s1 * 0.35f) + (s2 * 0.25f) + (s3 * 0.15f) + (s4 * 0.10f) + (s5 * 0.07f)
 							 + (s6 * 0.03f) + (s7 * 0.02f) + (s8 * 0.02f) + (s9 * 0.01f);
 
-			// --- NOISE: Get pre-generated sample ---
-			float noiseSample = GetNoise(); // Range: -0.5 to 0.5
+			float noiseSample = GetNoise();
 
-			// --- 4. Mix TONE, CHIFF, and SUSTAINED BREATH ---
 			float toneWithBreath = toneSample + (noiseSample * SUSTAINED_BREATH_AMOUNT);
 			float finalSample = (toneWithBreath * _amplitude) + (noiseSample * _noiseAmplitude * 0.7f);
 
-			// --- 5. Push the Frame ---
 			_playback.PushFrame(Vector2.One * Mathf.Clamp(finalSample, -1.0f, 1.0f));
-
-			// --- 6. Advance the Oscillator ---
 			_phase = Mathf.PosMod(_phase + increment, 1.0f);
 		}
 	}
-
-	// --- PUBLIC API (No changes) ---
 
 	public void NoteOn(float newHz)
 	{
 		if (_targetAmplitude == 0.0f)
 		{
 			_phase = 0.0f;
-			_noiseAmplitude = 1.0f; // Trigger the "chiff"
+			_noiseAmplitude = 1.0f;
 		}
 
 		_pulseHz = newHz;
@@ -158,6 +151,6 @@ public partial class CSharpNode : Node
 	public void NoteOff()
 	{
 		_targetAmplitude = 0.0f;
-		_noiseAmplitude = 0.0f; // Cut chiff
+		_noiseAmplitude = 0.0f;
 	}
 }
