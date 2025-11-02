@@ -1,0 +1,161 @@
+[gd_scene load_steps=10 format=3 uid="uid://mjers81sbtwa"]
+
+[ext_resource type="Script" uid="uid://dy72c42fwip2x" path="res://scenes/instrument/instrument.gd" id="1_qaxr8"]
+[ext_resource type="AudioStream" uid="uid://s11jgc36qn4s" path="res://assets/samples/flute/flute_C4_1_mezzo-forte.mp3" id="2_vm6qg"]
+[ext_resource type="AudioStream" uid="uid://qrmvaspydjom" path="res://assets/samples/flute/flute_C5_1_mezzo-forte.mp3" id="3_btwsg"]
+[ext_resource type="AudioStream" uid="uid://dxq12yrn07qts" path="res://assets/samples/flute/flute_C6_1_mezzo-forte.mp3" id="4_wfyyj"]
+
+[sub_resource type="GDScript" id="GDScript_fu5d8"]
+script/source = "@icon(\"multisampler_icon.png\")
+extends Sampler
+class_name SamplerInstrument
+
+## Audio instrument using samples to play notes [br][br]
+## [url=https://github.com/ClementRivaille/godot-simple-sampler?tab=readme-ov-file#simple-sampler]Documentation[/url]
+
+## Maximum of simultaneous notes allowed
+@export var max_notes: int = 4
+
+var samplers : Array[Sampler] = []
+var next_available := 0
+var last_sampler_used: Sampler
+
+func _ready():
+	# Create samplers
+	# warning-ignore:unused_variable
+	for i in range(max_notes):
+		var sampler := _build_sampler()
+
+		add_child(sampler)
+		samplers.append(sampler)
+
+func play_note(note: String, octave: int = 4, velocity: int = 5):
+	# Call one of the sampler to play the note
+	var sampler: Sampler = samplers[next_available]
+	sampler.play_note(note, octave, velocity)
+	next_available = (next_available + 1) % max_notes
+	last_sampler_used = sampler
+
+func stop():
+	for s in samplers:
+		var sampler: Sampler = s
+		sampler.stop()
+
+func release():
+	for s in samplers:
+		var sampler: Sampler = s
+		sampler.release()
+
+func glide(note: String, octave: int = 4, duration: float = 0.1):
+	if (last_sampler_used != null && last_sampler_used.playing):
+		last_sampler_used.glide(note, octave, duration)
+
+## Glide a note within a chord.
+## Will glide the first available playing note that is not already gliding.
+func chord_glide(note: String, octave: int = 4, duration: float = 0.1):
+	# Order samplers from least to most recent play
+	var ordered_samplers: Array[Sampler] = samplers.duplicate()
+	for idx in range(next_available):
+		ordered_samplers.append(ordered_samplers.pop_front())
+	# Pick a playing sampler
+	var sampler := ordered_samplers[0]
+	var idx := 0
+	while (idx < ordered_samplers.size() - 1 && !_can_glide(sampler)):
+		idx += 1
+		sampler = ordered_samplers[idx]
+
+	# Glide
+	if (_can_glide(sampler)):
+		sampler.glide(note, octave, duration)
+
+func _can_glide(s: Sampler) -> bool:
+	return s.playing && !s.in_release && !(s.glissando != null && s.glissando.is_running())
+
+func _build_sampler() -> Sampler:
+	var sampler := Sampler.new()
+	sampler.samples = samples
+	sampler.env_attack = env_attack
+	sampler.env_sustain = env_sustain
+	sampler.env_release = env_release
+	sampler.volume_db = volume_db
+	sampler.bus = bus
+	## COPY_SAMPLER_2D: _copy_player2D_properties(self, sampler)
+	## COPY_SAMPLER_3D: _copy_player3D_properties(self, sampler)
+
+	return sampler
+
+func _copy_player2D_properties(from: AudioStreamPlayer2D, to: AudioStreamPlayer2D):
+	to.max_distance = from.max_distance
+	to.attenuation = from.attenuation
+	to.panning_strength = from.panning_strength
+	to.area_mask = from.area_mask
+
+func _copy_player3D_properties(from: AudioStreamPlayer3D, to: AudioStreamPlayer3D):
+	to.max_distance = from.max_distance
+	to.panning_strength = from.panning_strength
+	to.area_mask = from.area_mask
+	to.attenuation_filter_cutoff_hz = from.attenuation_filter_cutoff_hz
+	to.attenuation_filter_db = from.attenuation_filter_db
+	to.attenuation_model = from.attenuation_model
+	to.doppler_tracking = from.doppler_tracking
+	to.emission_angle_degrees = from.emission_angle_degrees
+	to.emission_angle_enabled = from.emission_angle_enabled
+	to.emission_angle_filter_attenuation_db = from.emission_angle_filter_attenuation_db
+	to.max_db = from.max_db
+	to.unit_size = from.unit_size
+"
+
+[sub_resource type="GDScript" id="GDScript_md2uh"]
+script/source = "extends Resource
+class_name NoteSample
+
+## Sound sample for a single note
+##
+## Provides a sound file associated to its corresponding note
+
+## Sound file or source
+@export var stream: AudioStream
+## Corresponding note
+@export_enum(\"C\", \"C#\", \"D\", \"D#\", \"E\", \"F\", \"F#\", \"G\", \"G#\", \"A\", \"A#\", \"B\") var tone: String = \"C\"
+## Corresponding octave
+@export var octave : int = 4
+## Velocity
+@export_range(0, 10) var velocity : int = 5
+
+var value: int
+
+func initValue(calculator: NoteValueCalculator):
+	value = calculator.get_note_value(tone, octave)
+"
+
+[sub_resource type="Resource" id="Resource_jiaf8"]
+script = SubResource("GDScript_md2uh")
+stream = ExtResource("2_vm6qg")
+tone = "C"
+octave = 4
+velocity = 5
+metadata/_custom_type_script = "uid://dtpmtwvvk0ac7"
+
+[sub_resource type="Resource" id="Resource_l4724"]
+script = SubResource("GDScript_md2uh")
+stream = ExtResource("3_btwsg")
+tone = "C"
+octave = 5
+velocity = 5
+metadata/_custom_type_script = "uid://dtpmtwvvk0ac7"
+
+[sub_resource type="Resource" id="Resource_vxvj1"]
+script = SubResource("GDScript_md2uh")
+stream = ExtResource("4_wfyyj")
+tone = "C"
+octave = 6
+velocity = 5
+metadata/_custom_type_script = "uid://dtpmtwvvk0ac7"
+
+[node name="Intrument" type="Node2D"]
+script = ExtResource("1_qaxr8")
+
+[node name="FluteSamplerInstrument" type="AudioStreamPlayer" parent="."]
+script = SubResource("GDScript_fu5d8")
+samples = [SubResource("Resource_jiaf8"), SubResource("Resource_l4724"), SubResource("Resource_vxvj1")]
+metadata/_custom_type_script = "uid://2ag1petdt53"

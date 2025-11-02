@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://dj5csxlxbgv0c"]
+[gd_scene load_steps=8 format=3 uid="uid://dj5csxlxbgv0c"]
 
 [ext_resource type="Script" uid="uid://b5wd1oa1jm4cm" path="res://scripts/visualizer.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://c52kxsried6ni" path="res://scripts/pitch_detection.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://c8castmh3ys1a" path="res://note_label.gd" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://1yubyls5ty3w" path="res://scenes/audio_generator/audio_generator.tscn" id="4_1bvp3"]
-[ext_resource type="Script" uid="uid://dy72c42fwip2x" path="res://scripts/instrument.gd" id="5_lquwl"]
+[ext_resource type="PackedScene" uid="uid://dyj0oo03v4ixw" path="res://scenes/midi_receiver/midi_receiver.tscn" id="4_7mycd"]
+[ext_resource type="PackedScene" uid="uid://ccqemxisp5yy8" path="res://scenes/virtual_instrument/virtual_instrument.tscn" id="6_7mycd"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_ig7tw"]
 
@@ -40,23 +41,11 @@ script = ExtResource("2_h2yge")
 [node name="PitchDetection" type="Node" parent="."]
 script = ExtResource("2_0xm2m")
 
+[node name="MidiReceiver" parent="." node_paths=PackedStringArray("audio_generator") instance=ExtResource("4_7mycd")]
+audio_generator = NodePath("../AudioGenerator")
+
 [node name="AudioGenerator" parent="." instance=ExtResource("4_1bvp3")]
 
-[node name="Node2D" type="Node2D" parent="."]
-script = ExtResource("5_lquwl")
-
-[node name="Button1" type="Button" parent="Node2D"]
-offset_left = 394.0
-offset_top = 22.0
-offset_right = 762.0
-offset_bottom = 209.0
-text = "button 1"
-
-[node name="Button2" type="Button" parent="Node2D"]
-offset_left = 797.0
-offset_top = 24.0
-offset_right = 1165.0
-offset_bottom = 211.0
-text = "button 2"
+[node name="VirtualInstrument" parent="." instance=ExtResource("6_7mycd")]
 
 [connection signal="midi_note_changed" from="PitchDetection" to="UI/NoteLabel" method="_on_pitch_detection_midi_note_changed"]

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="NoteSample" load_steps=3 format=3 uid="uid://cm04qgxw71fuh"]
+
+[ext_resource type="Script" uid="uid://dtpmtwvvk0ac7" path="res://addons/SimpleSampler/sample_resource.gd" id="1_sduon"]
+[ext_resource type="AudioStream" uid="uid://bc0t1rdhi263w" path="res://assets/samples/flute/C_5_mezzo-forte.ogg" id="2_vhpmn"]
+
+[resource]
+script = ExtResource("1_sduon")
+stream = ExtResource("2_vhpmn")
+tone = "C"
+octave = 5
+velocity = 5
+metadata/_custom_type_script = "uid://dtpmtwvvk0ac7"

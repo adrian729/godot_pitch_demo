@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyj0oo03v4ixw"]
+
+[ext_resource type="Script" uid="uid://crsj7abim23fn" path="res://scenes/midi_receiver/midi_receiver.gd" id="1_i7ua1"]
+
+[node name="MidiReceiver" type="Node" node_paths=PackedStringArray("audio_generator", "virtual_midi_source")]
+script = ExtResource("1_i7ua1")
+audio_generator = NodePath("")
+virtual_midi_source = NodePath("")

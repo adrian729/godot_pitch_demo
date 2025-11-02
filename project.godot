@@ -21,11 +21,17 @@ driver/enable_input=true
 
 [autoload]
 
-NoteRanges="*res://scripts/note_ranges.gd"
+NoteRanges="*res://scripts/global/note_ranges.gd"
+PlayingNotes="*res://scripts/global/playing_notes.gd"
+NoteValue="*res://addons/SimpleSampler/note_value.gd"
 
 [dotnet]
 
 project/assembly_name="audio-mic-demo"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/SimpleSampler/plugin.cfg")
 
 [rendering]
 
