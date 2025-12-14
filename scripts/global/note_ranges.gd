@@ -3,7 +3,7 @@ extends Node
 ## A Singleton that provides a pre-calculated MIDI note-to-frequency mapping table.
 ## Tuning is determined by the BASE_A_FREQUENCY constant.
 ## The note table is generated once at startup.
-#
+
 # SETUP: To make this script work as a global Singleton, add it to your Autoloads.
 # 1. Go to Project -> Project Settings -> Globals.
 # 2. Select the "AutoLoad" tab.

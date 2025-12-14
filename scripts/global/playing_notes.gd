@@ -3,7 +3,7 @@ extends Node
 ## Manages the state of all currently playing notes.
 ## Provides globally accessible enums (Tone, Dynamic) and helper functions
 ## for converting note/dynamic values. Emits signals for note_on/note_off.
-#
+
 # SETUP: To make this script work as a global Singleton, add it to your AutoLoads.
 # 1. Go to Project -> Project Settings -> Globals.
 # 2. Select the "AutoLoad" tab.
@@ -17,25 +17,37 @@ signal note_off(tone: Tone, octave: int, instrument_id: String)
 
 # TONE
 enum Tone { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B }
-
+const TONE_ENUM_TO_STRING = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"]
 const TONE_STRING_TO_ENUM = {
 	"C": Tone.C,
 	"C#": Tone.C_SHARP,
+	"Db": Tone.C_SHARP,
+	"C#/Db": Tone.C_SHARP,
 	"D": Tone.D,
 	"D#": Tone.D_SHARP,
+	"Eb": Tone.D_SHARP,
+	"D#/Eb": Tone.D_SHARP,
 	"E": Tone.E,
 	"F": Tone.F,
 	"F#": Tone.F_SHARP,
+	"Gb": Tone.F_SHARP,
+	"F#/Gb": Tone.F_SHARP,
 	"G": Tone.G,
 	"G#": Tone.G_SHARP,
+	"Ab": Tone.G_SHARP,
+	"G#/Ab": Tone.G_SHARP,
 	"A": Tone.A,
 	"A#": Tone.A_SHARP,
+	"Bb": Tone.A_SHARP,
+	"A#/Bb": Tone.A_SHARP,
 	"B": Tone.B
 }
-const TONE_ENUM_TO_STRING = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 const C_MAJOR: Array[Tone] = [Tone.C, Tone.D, Tone.E, Tone.F, Tone.G, Tone.A, Tone.B]
+const C_MAJOR_RELATIVE_OCTAVES: Array[int] = [0, 0, 0, 0, 0, 0, 0]
 const A_MINOR: Array[Tone] = [Tone.A, Tone.B, Tone.C, Tone.D, Tone.E, Tone.F, Tone.G]
+const A_MINOR_RELATIVE_OCTAVES: Array[int] = [0, 0, 1, 1, 1, 1, 1]
+
 
 func tone_str_to_enum(tone_string: String) -> Tone:
 	assert(TONE_STRING_TO_ENUM.has(tone_string), "Invalid note string: " + tone_string)

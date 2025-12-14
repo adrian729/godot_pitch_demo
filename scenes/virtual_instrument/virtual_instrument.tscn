@@ -6,11 +6,10 @@
 [ext_resource type="Resource" uid="uid://ca40kydj50xjh" path="res://resources/note_samples/flute/C_4_mezzo-forte.tres" id="4_oxtdx"]
 [ext_resource type="Resource" uid="uid://cm04qgxw71fuh" path="res://resources/note_samples/flute/C_5_mezzo-forte.tres" id="5_833gj"]
 [ext_resource type="Resource" uid="uid://ck7aggy75dgfp" path="res://resources/note_samples/flute/C_6_mezzo-forte.tres" id="6_m1xfc"]
-[ext_resource type="Script" uid="uid://cdfynyln3m11l" path="res://scenes/virtual_instrument/instrument_key_button.gd" id="7_m1xfc"]
+[ext_resource type="Script" uid="uid://dfx8cadlhpt70" path="res://scenes/virtual_instrument/voice.gd" id="7_6tsca"]
 
-[node name="VirtualInstrument" type="Node2D" node_paths=PackedStringArray("sampler_instrument")]
+[node name="VirtualInstrument" type="Node2D"]
 script = ExtResource("1_malyi")
-sampler_instrument = NodePath("Samplers/SamplerInstrument")
 
 [node name="Samplers" type="Node" parent="."]
 
@@ -23,10 +22,6 @@ metadata/_custom_type_script = "uid://2ag1petdt53"
 
 [node name="Voices" type="Node2D" parent="."]
 
-[node name="Voice0" type="Node2D" parent="Voices"]
-
-[node name="InstrumentKeyButton" type="Button" parent="Voices/Voice0"]
-offset_right = 19.0
-offset_bottom = 31.0
-text = "C"
-script = ExtResource("7_m1xfc")
+[node name="Voice" type="Node2D" parent="Voices" node_paths=PackedStringArray("sampler_instrument")]
+script = ExtResource("7_6tsca")
+sampler_instrument = NodePath("../../Samplers/SamplerInstrument")
